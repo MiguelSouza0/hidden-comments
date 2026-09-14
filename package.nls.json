@@ -1,6 +1,6 @@
 {
   "extension.displayName": "Hidden Comments",
-  "extension.description": "Team comments that never reach the browser inspector. Picks the comment syntax your file type strips before the response is served, and stores the rest outside the file.",
+  "extension.description": "Your HTML comments are visible in DevTools. This writes them in the syntax Jinja, Django, Blade, Twig, Handlebars or EJS drops server-side - and converts the ones already in your code.",
   "category": "Hidden Comments",
   "cmd.add": "Add hidden comment",
   "cmd.toggleVisibility": "Show/hide hidden comments",

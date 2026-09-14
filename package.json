@@ -16,12 +16,26 @@
     "Linters"
   ],
   "keywords": [
-    "comments",
-    "comentarios",
-    "privacy",
-    "template",
     "jinja",
-    "blade"
+    "jinja2",
+    "django",
+    "flask",
+    "blade",
+    "laravel",
+    "twig",
+    "symfony",
+    "handlebars",
+    "ejs",
+    "nunjucks",
+    "pug",
+    "scss",
+    "html comments",
+    "comentarios",
+    "comment converter",
+    "devtools",
+    "server-side",
+    "template",
+    "i18n"
   ],
   "repository": {
     "type": "git",

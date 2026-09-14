@@ -1,6 +1,6 @@
 {
   "extension.displayName": "Comentários Ocultos",
-  "extension.description": "Comentários de equipe que não chegam ao inspecionar do navegador. Escolhe a sintaxe que o seu tipo de arquivo descarta antes de servir a resposta e guarda o restante fora do arquivo.",
+  "extension.description": "Seus comentários HTML aparecem no DevTools. Esta extensão os escreve na sintaxe que Jinja, Django, Blade, Twig, Handlebars ou EJS descartam no servidor — e converte os que já estão no código.",
   "category": "Comentários Ocultos",
   "cmd.add": "Adicionar comentário oculto",
   "cmd.toggleVisibility": "Mostrar/esconder comentários ocultos",
