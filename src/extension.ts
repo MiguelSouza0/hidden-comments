@@ -73,18 +73,21 @@ export function activate(context: vscode.ExtensionContext): void {
         visible: ghostVisible(),
         detection: undefined,
         trustBuild: trustBuild(),
+        hiddenCount: 0,
       });
       return;
     }
 
     const enabled = isEnabled();
     const detection = enabled ? await detectForDocument(editor.document) : undefined;
+    const comments = enabled ? await store.load(editor.document) : [];
 
     statusBar.update({
       enabled,
       visible: ghostVisible(),
       detection,
       trustBuild: trustBuild(),
+      hiddenCount: comments.length,
     });
 
     if (!enabled) {
@@ -96,7 +99,7 @@ export function activate(context: vscode.ExtensionContext): void {
     diagnostics.refresh(editor.document, detection);
 
     if (ghostVisible()) {
-      ghosts.render(editor, await store.load(editor.document));
+      ghosts.render(editor, comments);
     } else {
       ghosts.clear(editor);
     }
@@ -282,7 +285,19 @@ export function activate(context: vscode.ExtensionContext): void {
   const commands: ReadonlyArray<readonly [string, (...args: never[]) => unknown]> = [
     ["hiddenComments.add", addComment],
     ["hiddenComments.toggleEnabled", () => toggle("enabled")],
-    ["hiddenComments.toggleVisibility", () => toggle("showGhostComments")],
+    [
+      "hiddenComments.toggleVisibility",
+      async () => {
+        await toggle("showGhostComments");
+
+        // Sem comentarios no sidecar a alternancia nao muda nada na tela, e o
+        // usuario fica sem saber se a extensao funcionou.
+        const editor = vscode.window.activeTextEditor;
+        if (editor && isEnabled() && (await store.load(editor.document)).length === 0) {
+          void vscode.window.showInformationMessage(t("msg.noneHere"));
+        }
+      },
+    ],
     ["hiddenComments.refreshTree", () => tree.refresh()],
     [
       "hiddenComments.scanFile",

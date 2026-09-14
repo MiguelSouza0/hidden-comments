@@ -20,8 +20,9 @@ export class StatusBar {
     readonly visible: boolean;
     readonly detection: Detection | undefined;
     readonly trustBuild: boolean;
+    readonly hiddenCount: number;
   }): void {
-    const { enabled, visible, detection, trustBuild } = options;
+    const { enabled, visible, detection, trustBuild, hiddenCount } = options;
 
     if (!enabled) {
       this.item.text = `$(eye-closed) ${t("status.off")}`;
@@ -38,8 +39,9 @@ export class StatusBar {
       ? detection.context.label
       : t("status.contextUnknown");
     const hidden = visible ? "" : ` ${t("status.hidden")}`;
+    const count = hiddenCount > 0 ? ` $(comment) ${t("status.count", String(hiddenCount))}` : "";
 
-    this.item.text = `$(eye) ${t("status.context", label)}${hidden}`;
+    this.item.text = `$(eye) ${t("status.context", label)}${count}${hidden}`;
 
     const safe = detection
       ? resolveSafeSyntax(detection.context, { trustBuild })

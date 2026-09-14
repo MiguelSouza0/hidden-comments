@@ -26,5 +26,6 @@
   "config.contexts": "Força um contexto por padrão glob, ex.: { \"**/*.html\": \"jinja\" }. Valores válidos: jinja, blade, twig, handlebars, ejs, pug, sass, php, python, cstyle-server, hash-server, html, css, javascript, jsx, vue.",
   "config.trustBuildForSourceMaps": "Trata JavaScript, TypeScript, JSX e Vue como seguros. Só ative se o seu build minificar E não publicar sourcemap — caso contrário o comentário fica visível no DevTools.",
   "config.diagnosticsSeverity": "Severidade do aviso sobre comentários que chegam ao navegador.",
-  "config.author": "Nome exibido junto aos comentários. Sem valor, usa o usuário do sistema."
+  "config.author": "Nome exibido junto aos comentários. Sem valor, usa o usuário do sistema.",
+  "view.welcome": "Nenhum comentário oculto neste projeto ainda.\n\nComentários ocultos são os guardados fora do arquivo-fonte, para tipos que não têm sintaxe de comentário que o navegador descarte.\n\n[Adicionar comentário oculto](command:hiddenComments.add)\n\nComentários já escritos no arquivo (como {# ... #}) são código normal e não aparecem aqui."
 }

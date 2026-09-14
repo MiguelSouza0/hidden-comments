@@ -24,6 +24,11 @@ const MESSAGES: Dictionary = {
   "status.context": { en: "Context: {0}", "pt-br": "Contexto: {0}" },
   "status.contextUnknown": { en: "no context", "pt-br": "sem contexto" },
   "status.hidden": { en: "(comments hidden)", "pt-br": "(comentarios escondidos)" },
+  "status.count": { en: "{0} hidden", "pt-br": "{0} ocultos" },
+  "msg.noneHere": {
+    en: "This file has no hidden comments. Comments already in the file are normal code and stay visible - add one with Ctrl+Alt+Shift+H.",
+    "pt-br": "Este arquivo nao tem comentarios ocultos. Os comentarios ja escritos no arquivo sao codigo normal e continuam visiveis - adicione um com Ctrl+Alt+Shift+H.",
+  },
 
   "prompt.comment": {
     en: "Hidden comment (it will not reach the browser)",
