@@ -1,6 +1,8 @@
 import * as esbuild from "esbuild";
 
 const watch = process.argv.includes("--watch");
+/** Build de desenvolvimento: sem minificar e com sourcemap, para o F5 parar na linha certa. */
+const dev = watch || process.argv.includes("--dev");
 
 /** A API do VS Code e um modulo CommonJS injetado em tempo de execucao: nao pode ser empacotado. */
 const options = {
@@ -11,8 +13,8 @@ const options = {
   platform: "node",
   target: "node18",
   external: ["vscode"],
-  sourcemap: !watch ? false : "inline",
-  minify: !watch,
+  sourcemap: dev ? "inline" : false,
+  minify: !dev,
   logLevel: "info",
 };
 

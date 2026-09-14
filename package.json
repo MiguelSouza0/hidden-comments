@@ -219,6 +219,7 @@
   },
   "scripts": {
     "build": "node esbuild.config.mjs",
+    "build:dev": "node esbuild.config.mjs --dev",
     "watch": "node esbuild.config.mjs --watch",
     "typecheck": "tsc --noEmit",
     "pretest": "npm run build",
