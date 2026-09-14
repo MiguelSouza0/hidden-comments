@@ -5,7 +5,7 @@
 
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.73%2B-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-64-success)
+![Tests](https://img.shields.io/badge/tests-97-success)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
@@ -60,6 +60,18 @@ Quando o arquivo aberto tem comentários expostos, a barra de status mostra um a
 Também disponível no menu de contexto do editor, no menu do explorador de arquivos (funciona em pastas inteiras) e como correção rápida sobre o aviso sublinhado.
 
 Qualquer um desses caminhos abre a pré-visualização de refatoração do próprio VS Code, com diff e caixa de seleção por item. A conversão preserva o texto e a indentação, e é idempotente: rodar de novo não encontra nada.
+
+#### Também dentro de `<script>` e `<style>`
+
+Jinja, Twig, Blade, Handlebars e EJS não interpretam HTML: processam o arquivo como texto antes de servi-lo. Por isso `{# … #}` desaparece até dentro de um bloco `<script>` — e a conversão alcança também os comentários de JavaScript e CSS embutidos na página, que de outra forma continuariam visíveis no DevTools.
+
+Três salvaguardas mantêm isso seguro:
+
+- **Só comentário que ocupa a linha inteira.** Um `//` no meio da linha pode estar dentro de uma expressão regular — `/https?:\/\//` termina com duas barras — e convertê-lo quebraria o código.
+- **Diretivas nunca são tocadas.** `// eslint-disable-next-line`, `//# sourceMappingURL`, `/*! licença */`, `/** @type */`, `// @ts-ignore` e afins são instruções para ferramentas, não comentários: convertê-las mudaria o comportamento do código.
+- **Blocos `{% raw %}` e `@verbatim` ficam de fora.** Ali o pré-processador não roda, então um `{# … #}` apareceria como texto na página — o oposto do que a extensão promete.
+
+Em HTML, CSS e JS puros nada disso se aplica: sem pré-processador, não há para onde converter.
 
 ### Ativar e desativar
 
@@ -134,6 +146,18 @@ Also available from the editor context menu, the file explorer context menu (wor
 
 Any of these opens VS Code's own refactor preview, with a diff and a checkbox per item. Conversion preserves text and indentation, and is idempotent: a second run finds nothing.
 
+#### Inside `<script>` and `<style>` too
+
+Jinja, Twig, Blade, Handlebars and EJS do not parse HTML: they process the file as text before serving it. So `{# … #}` disappears even inside a `<script>` block — and conversion also reaches the JavaScript and CSS comments embedded in the page, which would otherwise stay visible in DevTools.
+
+Three safeguards keep this safe:
+
+- **Only comments that own the whole line.** A `//` mid-line may sit inside a regular expression — `/https?:\/\//` ends in two slashes — and converting it would break the code.
+- **Directives are never touched.** `// eslint-disable-next-line`, `//# sourceMappingURL`, `/*! license */`, `/** @type */`, `// @ts-ignore` and friends are instructions for tooling, not comments: converting them would change behaviour.
+- **`{% raw %}` and `@verbatim` blocks are skipped.** The preprocessor does not run there, so a `{# … #}` would render as literal text on the page — the opposite of what the extension promises.
+
+None of this applies to plain HTML, CSS and JS: with no preprocessor, there is nothing to convert to.
+
 ### Turning it on and off
 
 | Action | How |
@@ -160,7 +184,7 @@ For JavaScript, TypeScript, JSX and Vue the default is to store outside the file
 
 ```bash
 npm install
-npm test        # 64 testes, sem depender do editor, sem subir editor
+npm test        # 97 testes, sem depender do editor, sem subir editor
 npm run check   # tipos + testes
 npm run build   # bundle com esbuild
 npm run package # gera o .vsix

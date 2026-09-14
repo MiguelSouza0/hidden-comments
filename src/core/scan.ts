@@ -7,7 +7,7 @@
  * conversao, que e o pior desfecho possivel para esta extensao.
  */
 
-import type { CommentSyntax } from "./languages.ts";
+import type { CommentSyntax, RawBlock } from "./languages.ts";
 
 export interface FoundComment {
   /** Deslocamento do inicio do delimitador de abertura. */
@@ -212,4 +212,154 @@ export function findComments(
   }
 
   return found.sort((a, b) => a.start - b.start);
+}
+
+// ---------------------------------------------------------------------------
+// Comentarios embutidos em <script> e <style>
+// ---------------------------------------------------------------------------
+
+export interface Region {
+  readonly start: number;
+  readonly end: number;
+}
+
+const SCRIPT_SYNTAXES: readonly CommentSyntax[] = [
+  { open: "/*", close: "*/" },
+  { open: "//" },
+];
+const STYLE_SYNTAXES: readonly CommentSyntax[] = [{ open: "/*", close: "*/" }];
+
+/**
+ * Prefixos que parecem comentario mas sao instrucao para alguma ferramenta.
+ *
+ * Converter qualquer um destes mudaria o comportamento do codigo: o linter
+ * deixaria de ser desligado, o sourcemap sumiria, a licenca que o minificador
+ * deve preservar seria descartada, o tipo anotado em JSDoc pararia de valer.
+ */
+const PRAGMA = new RegExp(
+  [
+    "^\\s*!", // /*! ... */ preservado por minificadores
+    "^\\s*#", // //# sourceMappingURL
+    "^\\*", // /** ... */ JSDoc
+    "^/?\\s*<", // /// <reference ... /> (a terceira barra entra no conteudo)
+    "^\\s*@", // @license, @preserve, @ts-ignore, @jsx
+    "^\\s*(eslint|prettier|ts-|tslint|jshint|jslint|stylelint|biome)",
+    "^\\s*(global|globals|exported|istanbul|c8|v8|webpack|vite|rollup|esbuild)\\b",
+    "^\\s*@__PURE__",
+  ].join("|"),
+);
+
+export function isPragma(inner: string): boolean {
+  return PRAGMA.test(inner);
+}
+
+/** Conteudo interno de cada bloco <script> e <style> do documento. */
+export function findEmbeddedRegions(
+  source: string,
+): ReadonlyArray<Region & { readonly kind: "script" | "style" }> {
+  const regions: Array<Region & { kind: "script" | "style" }> = [];
+
+  for (const kind of ["script", "style"] as const) {
+    const opening = new RegExp(`<${kind}\\b[^>]*>`, "gi");
+    let match: RegExpExecArray | null;
+
+    while ((match = opening.exec(source)) !== null) {
+      const start = match.index + match[0].length;
+      const closing = new RegExp(`</${kind}\\s*>`, "i").exec(source.slice(start));
+      const end = closing ? start + closing.index : source.length;
+
+      regions.push({ kind, start, end });
+      opening.lastIndex = end;
+    }
+  }
+
+  return regions.sort((a, b) => a.start - b.start);
+}
+
+/** Trechos protegidos por `{% raw %}`, `@verbatim` e equivalentes. */
+export function findRawRegions(
+  source: string,
+  blocks: readonly RawBlock[],
+): readonly Region[] {
+  const regions: Region[] = [];
+
+  for (const block of blocks) {
+    const opening = new RegExp(block.open, "gi");
+    let match: RegExpExecArray | null;
+
+    while ((match = opening.exec(source)) !== null) {
+      const closing = new RegExp(block.close, "i").exec(source.slice(match.index));
+      const end = closing ? match.index + closing.index + closing[0].length : source.length;
+
+      regions.push({ start: match.index, end });
+      opening.lastIndex = end;
+    }
+  }
+
+  return regions;
+}
+
+export function isInsideRegion(offset: number, regions: readonly Region[]): boolean {
+  return regions.some((region) => offset >= region.start && offset < region.end);
+}
+
+/** Verdadeiro quando so ha espaco em branco entre o inicio da linha e o offset. */
+function startsLine(source: string, offset: number): boolean {
+  const lineStart = source.lastIndexOf("\n", offset - 1) + 1;
+  return source.slice(lineStart, offset).trim() === "";
+}
+
+/**
+ * Comentarios de JavaScript e CSS dentro de <script> e <style>.
+ *
+ * So aceita comentario que ocupa a linha inteira. Um `//` no meio da linha
+ * pode estar dentro de uma expressao regular -- `/https?:\/\//` termina com
+ * duas barras -- e converter aquilo quebraria o codigo. Comentario de
+ * documentacao, que e o que interessa esconder, quase sempre comeca a linha.
+ */
+export function findEmbeddedComments(source: string): FoundComment[] {
+  const found: FoundComment[] = [];
+
+  for (const region of findEmbeddedRegions(source)) {
+    const inner = source.slice(region.start, region.end);
+    const syntaxes = region.kind === "script" ? SCRIPT_SYNTAXES : STYLE_SYNTAXES;
+
+    for (const syntax of syntaxes) {
+      const items =
+        syntax.close !== undefined
+          ? findBlockComments(inner, syntax)
+          : findLineComments(inner, syntax);
+
+      for (const item of items) {
+        const start = region.start + item.start;
+        if (!startsLine(source, start) || isPragma(item.inner)) {
+          continue;
+        }
+        found.push({ ...item, start, end: region.start + item.end });
+      }
+    }
+  }
+
+  return dropOverlapping(found);
+}
+
+/**
+ * Descarta achados contidos em outro.
+ *
+ * Um `// nota` dentro de um bloco `/* ... *\/` seria encontrado duas vezes, e
+ * aplicar as duas substituicoes corromperia o arquivo.
+ */
+export function dropOverlapping(found: readonly FoundComment[]): FoundComment[] {
+  const ordered = [...found].sort((a, b) => a.start - b.start || b.end - a.end);
+  const result: FoundComment[] = [];
+  let lastEnd = -1;
+
+  for (const item of ordered) {
+    if (item.start >= lastEnd) {
+      result.push(item);
+      lastEnd = item.end;
+    }
+  }
+
+  return result;
 }

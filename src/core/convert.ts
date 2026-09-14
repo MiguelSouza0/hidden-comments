@@ -2,7 +2,13 @@
 
 import { type LanguageContext, resolveSafeSyntax, scanSyntaxes } from "./languages.ts";
 import { rewrap } from "./comment.ts";
-import { findComments } from "./scan.ts";
+import {
+  dropOverlapping,
+  findComments,
+  findEmbeddedComments,
+  findRawRegions,
+  isInsideRegion,
+} from "./scan.ts";
 
 export interface Replacement {
   readonly start: number;
@@ -30,12 +36,26 @@ export function planConversion(
     return [];
   }
 
-  return findComments(source, syntaxes).map((comment) => ({
-    start: comment.start,
-    end: comment.end,
-    text: rewrap(safe, comment.inner),
-    original: source.slice(comment.start, comment.end),
-  }));
+  const found = [...findComments(source, syntaxes)];
+
+  // Em motor de template, o comentario seguro tambem vale dentro de <script> e
+  // <style>: o arquivo e processado como texto antes de virar resposta HTTP.
+  if (context.textPreprocessor) {
+    found.push(...findEmbeddedComments(source));
+  }
+
+  // Dentro de {% raw %} o pre-processador nao roda. Converter ali faria o
+  // contrario do prometido: o {# ... #} apareceria como texto na pagina.
+  const raw = findRawRegions(source, context.rawBlocks ?? []);
+
+  return dropOverlapping(found)
+    .filter((comment) => !isInsideRegion(comment.start, raw))
+    .map((comment) => ({
+      start: comment.start,
+      end: comment.end,
+      text: rewrap(safe, comment.inner),
+      original: source.slice(comment.start, comment.end),
+    }));
 }
 
 /** Aplica as substituicoes ao texto. Usado nos testes e na pre-visualizacao. */

@@ -32,6 +32,13 @@ export interface CommentSyntax {
   readonly close?: string;
 }
 
+/** Trecho em que o pre-processador nao roda (Jinja `{% raw %}`, Blade `@verbatim`). */
+export interface RawBlock {
+  /** Fonte da expressao regular de abertura. */
+  readonly open: string;
+  readonly close: string;
+}
+
 export interface LanguageContext {
   readonly id: ContextId;
   /** Nome exibido na barra de status. */
@@ -46,6 +53,17 @@ export interface LanguageContext {
    * e garantida, esses contextos sao tratados como inseguros por padrao.
    */
   readonly buildDependent?: boolean;
+  /**
+   * A forma segura vale em qualquer ponto do arquivo.
+   *
+   * Jinja, Twig e Blade nao interpretam HTML: processam o arquivo como texto
+   * antes de servir. Por isso `{# ... #}` desaparece ate dentro de um bloco
+   * <script>, o que permite esconder tambem os comentarios de JavaScript e CSS
+   * embutidos na pagina.
+   */
+  readonly textPreprocessor?: boolean;
+  /** Trechos onde o pre-processador nao roda; nada ali pode ser convertido. */
+  readonly rawBlocks?: readonly RawBlock[];
 }
 
 const HTML_COMMENT: CommentSyntax = { open: "<!--", close: "-->" };
@@ -59,30 +77,39 @@ const CONTEXTS: Readonly<Record<ContextId, LanguageContext>> = {
     label: "Jinja2 / Django",
     safe: { open: "{#", close: "#}" },
     leaking: [HTML_COMMENT],
+    textPreprocessor: true,
+    rawBlocks: [{ open: "\\{%-?\\s*raw\\s*-?%\\}", close: "\\{%-?\\s*endraw\\s*-?%\\}" }],
   },
   twig: {
     id: "twig",
     label: "Twig",
     safe: { open: "{#", close: "#}" },
     leaking: [HTML_COMMENT],
+    textPreprocessor: true,
+    rawBlocks: [{ open: "\\{%-?\\s*raw\\s*-?%\\}", close: "\\{%-?\\s*endraw\\s*-?%\\}" }],
   },
   blade: {
     id: "blade",
     label: "Blade",
     safe: { open: "{{--", close: "--}}" },
     leaking: [HTML_COMMENT],
+    textPreprocessor: true,
+    rawBlocks: [{ open: "@verbatim\\b", close: "@endverbatim\\b" }],
   },
   handlebars: {
     id: "handlebars",
     label: "Handlebars",
     safe: { open: "{{!--", close: "--}}" },
     leaking: [HTML_COMMENT],
+    textPreprocessor: true,
+    rawBlocks: [{ open: "\\{\\{\\{\\{raw\\}\\}\\}\\}", close: "\\{\\{\\{\\{/raw\\}\\}\\}\\}" }],
   },
   ejs: {
     id: "ejs",
     label: "EJS",
     safe: { open: "<%#", close: "%>" },
     leaking: [HTML_COMMENT],
+    textPreprocessor: true,
   },
   pug: {
     id: "pug",
