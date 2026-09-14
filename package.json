@@ -294,6 +294,8 @@
     "test": "node --test \"test/*.test.ts\"",
     "check": "npm run typecheck && npm run test",
     "package": "npm run build && vsce package --no-dependencies",
+    "publish:marketplace": "vsce publish",
+    "publish:openvsx": "ovsx publish",
     "vscode:prepublish": "npm run build"
   },
   "devDependencies": {
@@ -301,6 +303,7 @@
     "@types/vscode": "^1.73.0",
     "@vscode/vsce": "^3.0.0",
     "esbuild": "^0.24.0",
+    "ovsx": "^1.2.0",
     "typescript": "^5.6.0"
   }
 }
