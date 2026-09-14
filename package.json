@@ -1,0 +1,236 @@
+{
+  "name": "hidden-comments",
+  "displayName": "%extension.displayName%",
+  "description": "%extension.description%",
+  "version": "1.0.0",
+  "publisher": "MiguelSouza0",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/extension.cjs",
+  "icon": "media/icon.png",
+  "engines": {
+    "vscode": "^1.73.0"
+  },
+  "categories": [
+    "Other",
+    "Linters"
+  ],
+  "keywords": [
+    "comments",
+    "comentarios",
+    "privacy",
+    "template",
+    "jinja",
+    "blade"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MiguelSouza0/hidden-comments.git"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "hiddenComments.add",
+        "title": "%cmd.add%",
+        "category": "%category%"
+      },
+      {
+        "command": "hiddenComments.toggleVisibility",
+        "title": "%cmd.toggleVisibility%",
+        "category": "%category%"
+      },
+      {
+        "command": "hiddenComments.toggleEnabled",
+        "title": "%cmd.toggleEnabled%",
+        "category": "%category%"
+      },
+      {
+        "command": "hiddenComments.scanFile",
+        "title": "%cmd.scanFile%",
+        "category": "%category%"
+      },
+      {
+        "command": "hiddenComments.scanWorkspace",
+        "title": "%cmd.scanWorkspace%",
+        "category": "%category%"
+      },
+      {
+        "command": "hiddenComments.convertFile",
+        "title": "%cmd.convertFile%",
+        "category": "%category%"
+      },
+      {
+        "command": "hiddenComments.convertWorkspace",
+        "title": "%cmd.convertWorkspace%",
+        "category": "%category%"
+      },
+      {
+        "command": "hiddenComments.showContext",
+        "title": "%cmd.showContext%",
+        "category": "%category%"
+      },
+      {
+        "command": "hiddenComments.openComment",
+        "title": "%cmd.openComment%",
+        "category": "%category%"
+      },
+      {
+        "command": "hiddenComments.editComment",
+        "title": "%cmd.editComment%",
+        "category": "%category%",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "hiddenComments.deleteComment",
+        "title": "%cmd.deleteComment%",
+        "category": "%category%",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "hiddenComments.refreshTree",
+        "title": "%cmd.refreshTree%",
+        "category": "%category%",
+        "icon": "$(refresh)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "hiddenComments.add",
+        "key": "ctrl+alt+shift+h",
+        "mac": "cmd+alt+shift+h",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "hiddenComments.toggleVisibility",
+        "key": "ctrl+alt+h",
+        "mac": "cmd+alt+h"
+      }
+    ],
+    "configuration": {
+      "title": "%extension.displayName%",
+      "properties": {
+        "hiddenComments.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.enabled%"
+        },
+        "hiddenComments.showGhostComments": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.showGhostComments%"
+        },
+        "hiddenComments.language": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "pt-br",
+            "en"
+          ],
+          "default": "auto",
+          "enumDescriptions": [
+            "%config.language.auto%",
+            "%config.language.ptbr%",
+            "%config.language.en%"
+          ],
+          "description": "%config.language%"
+        },
+        "hiddenComments.sidecarDirectory": {
+          "type": "string",
+          "default": ".hidden-comments",
+          "description": "%config.sidecarDirectory%"
+        },
+        "hiddenComments.contexts": {
+          "type": "object",
+          "default": {},
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "%config.contexts%"
+        },
+        "hiddenComments.trustBuildForSourceMaps": {
+          "type": "boolean",
+          "default": false,
+          "description": "%config.trustBuildForSourceMaps%"
+        },
+        "hiddenComments.diagnosticsSeverity": {
+          "type": "string",
+          "enum": [
+            "warning",
+            "information",
+            "off"
+          ],
+          "default": "warning",
+          "description": "%config.diagnosticsSeverity%"
+        },
+        "hiddenComments.author": {
+          "type": "string",
+          "default": "",
+          "description": "%config.author%"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "hiddenComments",
+          "title": "%view.container%",
+          "icon": "media/eye-off.svg"
+        }
+      ]
+    },
+    "views": {
+      "hiddenComments": [
+        {
+          "id": "hiddenComments.tree",
+          "name": "%view.tree%"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "hiddenComments.refreshTree",
+          "when": "view == hiddenComments.tree",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "hiddenComments.editComment",
+          "when": "view == hiddenComments.tree && viewItem == comment",
+          "group": "inline"
+        },
+        {
+          "command": "hiddenComments.deleteComment",
+          "when": "view == hiddenComments.tree && viewItem == comment",
+          "group": "inline"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "hiddenComments.add",
+          "group": "1_modification@9"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "watch": "node esbuild.config.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"test/*.test.ts\"",
+    "check": "npm run typecheck && npm run test",
+    "package": "npm run build && vsce package --no-dependencies",
+    "vscode:prepublish": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.73.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.0"
+  }
+}
