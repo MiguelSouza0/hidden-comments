@@ -2,21 +2,33 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Executar extensao",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
-      "outFiles": ["${workspaceFolder}/dist/**/*.cjs"],
-      "preLaunchTask": "npm: build:dev"
-    },
-    {
-      "name": "Executar extensao no SER",
+      "name": "Executar extensao (isolada)",
       "type": "extensionHost",
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
+        "--disable-extensions"
+      ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.cjs"],
+      "preLaunchTask": "npm: build:dev"
+    },
+    {
+      "name": "Executar extensao no SER (isolada)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--disable-extensions",
         "${env:HOME}/Documentos/SER-develop/SER-Sistema-Escolar-Relacional"
       ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.cjs"],
+      "preLaunchTask": "npm: build:dev"
+    },
+    {
+      "name": "Executar extensao (com as demais extensoes)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
       "outFiles": ["${workspaceFolder}/dist/**/*.cjs"],
       "preLaunchTask": "npm: build:dev"
     }
