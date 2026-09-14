@@ -1,27 +1,25 @@
 {% extends "base.html" %}
 {% block conteudo %}
 
-{# Cabeçalho: layout novo aprovado pelo cliente em 02/09 #}
+{# Layout aprovado pelo cliente em 02/09 #}
 <section class="produto">
   <h1>{{ produto.nome }}</h1>
 
-  {# TODO: o cálculo de desconto ignora cupom acumulado, corrigir antes do Natal #}
+  {# TODO: desconto ignora cupom acumulado #}
   <p class="preco">{{ produto.preco }}</p>
 
-  {# A API de estoque cai quando passa de 500 itens. Workaround temporário abaixo. #}
+  {# A API de estoque cai acima de 500 itens #}
   {% if produto.estoque < 500 %}
-    <span class="disponivel">Em estoque</span>
+    <span>Em estoque</span>
   {% endif %}
 
   <script>
-    {# Chave de teste do gateway, trocar pela de produção no deploy #}
+    {# Chave de teste do gateway, trocar no deploy #}
     const gateway = "/api/checkout";
-    // eslint-disable-next-line no-console
-    console.log(gateway);
   </script>
 
   <style>
-    {# Esse z-index briga com o modal do carrinho, não mexer sem testar #}
+    {# z-index briga com o modal do carrinho #}
     .produto { z-index: 10; }
   </style>
 </section>
