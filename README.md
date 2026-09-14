@@ -5,7 +5,7 @@
 
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.73%2B-007ACC?logo=visualstudiocode&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-60-success)
+![Tests](https://img.shields.io/badge/tests-64-success)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
@@ -152,7 +152,7 @@ For JavaScript, TypeScript, JSX and Vue the default is to store outside the file
 
 ```bash
 npm install
-npm test        # 60 testes do núcleo, sem subir editor
+npm test        # 64 testes, sem depender do editor, sem subir editor
 npm run check   # tipos + testes
 npm run build   # bundle com esbuild
 npm run package # gera o .vsix

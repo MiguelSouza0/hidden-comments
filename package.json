@@ -221,6 +221,7 @@
     "build": "node esbuild.config.mjs",
     "watch": "node esbuild.config.mjs --watch",
     "typecheck": "tsc --noEmit",
+    "pretest": "npm run build",
     "test": "node --test \"test/*.test.ts\"",
     "check": "npm run typecheck && npm run test",
     "package": "npm run build && vsce package --no-dependencies",
