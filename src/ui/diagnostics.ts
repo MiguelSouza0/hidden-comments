@@ -18,12 +18,13 @@ export const DIAGNOSTIC_CODE = "hidden-comments.exposed";
 export class ExposedComments implements vscode.CodeActionProvider {
   readonly collection = vscode.languages.createDiagnosticCollection("hiddenComments");
 
-  refresh(document: vscode.TextDocument, detection: Detection | undefined): void {
+  /** Atualiza os avisos e devolve quantos comentarios estao expostos. */
+  refresh(document: vscode.TextDocument, detection: Detection | undefined): number {
     const severity = this.severity();
 
     if (!detection || severity === undefined) {
       this.collection.delete(document.uri);
-      return;
+      return 0;
     }
 
     const safe = resolveSafeSyntax(detection.context, { trustBuild: false });
@@ -31,7 +32,7 @@ export class ExposedComments implements vscode.CodeActionProvider {
 
     if (!safe || plan.length === 0) {
       this.collection.delete(document.uri);
-      return;
+      return 0;
     }
 
     const diagnostics = plan.map((replacement) => {
@@ -50,6 +51,7 @@ export class ExposedComments implements vscode.CodeActionProvider {
     });
 
     this.collection.set(document.uri, diagnostics);
+    return plan.length;
   }
 
   provideCodeActions(

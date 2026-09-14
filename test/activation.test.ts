@@ -24,7 +24,16 @@ class EventEmitterStub {
 
 const vscodeStub = {
   window: {
-    createStatusBarItem: () => ({ show() {}, dispose() {}, text: "", tooltip: "" }),
+    createStatusBarItem: () => ({
+      show() {},
+      hide() {},
+      dispose() {},
+      text: "",
+      tooltip: "",
+      command: "",
+      backgroundColor: undefined,
+    }),
+    withProgress: (_options: unknown, task: () => Promise<unknown>) => task(),
     createTextEditorDecorationType: () => ({ dispose() {} }),
     registerTreeDataProvider: () => ({ dispose() {} }),
     onDidChangeActiveTextEditor: () => ({ dispose() {} }),
@@ -52,6 +61,9 @@ const vscodeStub = {
     registerCodeActionsProvider: () => ({ dispose() {} }),
   },
   EventEmitter: EventEmitterStub,
+  ProgressLocation: { Window: 10 },
+  RelativePattern: class {},
+  FileType: { Directory: 2, File: 1 },
   StatusBarAlignment: { Right: 2 },
   ThemeColor: class {},
   ThemeIcon: class { static File = {}; },

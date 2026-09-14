@@ -8,11 +8,16 @@ import { t } from "../l10n.ts";
 
 export class StatusBar {
   private readonly item: vscode.StatusBarItem;
+  /** Aviso separado, com acao propria: um clique converte o arquivo. */
+  private readonly exposed: vscode.StatusBarItem;
 
   constructor() {
     this.item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     this.item.command = "hiddenComments.toggleEnabled";
     this.item.show();
+
+    this.exposed = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 101);
+    this.exposed.command = "hiddenComments.convertFile";
   }
 
   update(options: {
@@ -21,8 +26,20 @@ export class StatusBar {
     readonly detection: Detection | undefined;
     readonly trustBuild: boolean;
     readonly hiddenCount: number;
+    readonly exposedCount: number;
   }): void {
-    const { enabled, visible, detection, trustBuild, hiddenCount } = options;
+    const { enabled, visible, detection, trustBuild, hiddenCount, exposedCount } = options;
+
+    if (enabled && exposedCount > 0) {
+      this.exposed.text = `$(warning) ${t("status.exposed", String(exposedCount))}`;
+      this.exposed.tooltip = t("status.exposedTooltip");
+      this.exposed.backgroundColor = new vscode.ThemeColor(
+        "statusBarItem.warningBackground",
+      );
+      this.exposed.show();
+    } else {
+      this.exposed.hide();
+    }
 
     if (!enabled) {
       this.item.text = `$(eye-closed) ${t("status.off")}`;
@@ -56,5 +73,6 @@ export class StatusBar {
 
   dispose(): void {
     this.item.dispose();
+    this.exposed.dispose();
   }
 }

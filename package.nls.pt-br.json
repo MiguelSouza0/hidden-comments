@@ -27,5 +27,9 @@
   "config.trustBuildForSourceMaps": "Trata JavaScript, TypeScript, JSX e Vue como seguros. Só ative se o seu build minificar E não publicar sourcemap — caso contrário o comentário fica visível no DevTools.",
   "config.diagnosticsSeverity": "Severidade do aviso sobre comentários que chegam ao navegador.",
   "config.author": "Nome exibido junto aos comentários. Sem valor, usa o usuário do sistema.",
-  "view.welcome": "Nenhum comentário oculto neste projeto ainda.\n\nComentários ocultos são os guardados fora do arquivo-fonte, para tipos que não têm sintaxe de comentário que o navegador descarte.\n\n[Adicionar comentário oculto](command:hiddenComments.add)\n\nComentários já escritos no arquivo (como {# ... #}) são código normal e não aparecem aqui."
+  "view.welcome": "Nenhum comentário oculto neste projeto ainda.\n\nComentários ocultos são os guardados fora do arquivo-fonte, para tipos que não têm sintaxe de comentário que o navegador descarte.\n\n[Adicionar comentário oculto](command:hiddenComments.add)\n\nComentários já escritos no arquivo (como {# ... #}) são código normal e não aparecem aqui.",
+  "cmd.refreshExposed": "Varrer o projeto de novo",
+  "cmd.convertAll": "Converter todos os comentários expostos",
+  "view.exposed": "Comentários expostos",
+  "view.exposedWelcome": "Nada exposto ao navegador neste projeto.\n\nEste painel lista os comentários escritos numa sintaxe que vai para o navegador, quando o tipo de arquivo tem uma forma mais segura disponível.\n\n[Varrer o projeto](command:hiddenComments.refreshExposed)"
 }

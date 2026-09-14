@@ -53,9 +53,13 @@ Projetos Flask e Django guardam templates em arquivos `.html` comuns. Sem uma ex
 
 ### Converter o que já está exposto
 
-`Verificar comentários expostos no projeto` varre tudo e mostra quantos comentários estão indo para o navegador. `Converter comentários expostos` abre a pré-visualização de refatoração do próprio VS Code, com diff e caixa de seleção por item.
+O painel **Comentários expostos**, na barra lateral da extensão, lista arquivo por arquivo tudo que está indo para o navegador. Clicar num item abre o arquivo na linha; o botão ao lado do arquivo converte só ele; o botão no topo do painel converte o projeto inteiro.
 
-A conversão preserva o texto e a indentação, e é idempotente: rodar de novo não encontra nada.
+Quando o arquivo aberto tem comentários expostos, a barra de status mostra um aviso amarelo (`⚠ 12 expostos`) — um clique converte aquele arquivo.
+
+Também disponível no menu de contexto do editor, no menu do explorador de arquivos (funciona em pastas inteiras) e como correção rápida sobre o aviso sublinhado.
+
+Qualquer um desses caminhos abre a pré-visualização de refatoração do próprio VS Code, com diff e caixa de seleção por item. A conversão preserva o texto e a indentação, e é idempotente: rodar de novo não encontra nada.
 
 ### Ativar e desativar
 
@@ -122,9 +126,13 @@ Flask and Django projects keep templates in ordinary `.html` files. Without a Ji
 
 ### Converting what is already exposed
 
-`Check exposed comments in the project` scans everything and reports how many comments are being served. `Convert exposed comments` opens VS Code's own refactor preview, with a diff and a checkbox per item.
+The **Exposed comments** panel in the extension's sidebar lists, file by file, everything being served to the browser. Clicking an entry opens the file at that line; the button next to a file converts just that file; the button at the top of the panel converts the whole project.
 
-Conversion preserves text and indentation, and is idempotent: a second run finds nothing.
+When the open file has exposed comments, the status bar shows a yellow warning (`⚠ 12 exposed`) — one click converts that file.
+
+Also available from the editor context menu, the file explorer context menu (works on entire folders) and as a quick fix on the underlined warning.
+
+Any of these opens VS Code's own refactor preview, with a diff and a checkbox per item. Conversion preserves text and indentation, and is idempotent: a second run finds nothing.
 
 ### Turning it on and off
 

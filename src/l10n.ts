@@ -25,6 +25,12 @@ const MESSAGES: Dictionary = {
   "status.contextUnknown": { en: "no context", "pt-br": "sem contexto" },
   "status.hidden": { en: "(comments hidden)", "pt-br": "(comentarios escondidos)" },
   "status.count": { en: "{0} hidden", "pt-br": "{0} ocultos" },
+  "status.exposed": { en: "{0} exposed", "pt-br": "{0} expostos" },
+  "status.exposedTooltip": {
+    en: "Comments in this file are served to the browser. Click to convert them to the safe syntax.",
+    "pt-br": "Comentarios deste arquivo vao para o navegador. Clique para converter para a sintaxe segura.",
+  },
+  "msg.scanning": { en: "Looking for exposed comments...", "pt-br": "Procurando comentarios expostos..." },
   "msg.noneHere": {
     en: "This file has no hidden comments. Comments already in the file are normal code and stay visible - add one with Ctrl+Alt+Shift+H.",
     "pt-br": "Este arquivo nao tem comentarios ocultos. Os comentarios ja escritos no arquivo sao codigo normal e continuam visiveis - adicione um com Ctrl+Alt+Shift+H.",

@@ -55,12 +55,14 @@
       {
         "command": "hiddenComments.scanWorkspace",
         "title": "%cmd.scanWorkspace%",
-        "category": "%category%"
+        "category": "%category%",
+        "icon": "$(search)"
       },
       {
         "command": "hiddenComments.convertFile",
         "title": "%cmd.convertFile%",
-        "category": "%category%"
+        "category": "%category%",
+        "icon": "$(replace-all)"
       },
       {
         "command": "hiddenComments.convertWorkspace",
@@ -94,6 +96,18 @@
         "title": "%cmd.refreshTree%",
         "category": "%category%",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "hiddenComments.refreshExposed",
+        "title": "%cmd.refreshExposed%",
+        "category": "%category%",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "hiddenComments.convertAll",
+        "title": "%cmd.convertAll%",
+        "category": "%category%",
+        "icon": "$(check-all)"
       }
     ],
     "keybindings": [
@@ -184,6 +198,10 @@
     "views": {
       "hiddenComments": [
         {
+          "id": "hiddenComments.exposed",
+          "name": "%view.exposed%"
+        },
+        {
           "id": "hiddenComments.tree",
           "name": "%view.tree%"
         }
@@ -195,6 +213,16 @@
           "command": "hiddenComments.refreshTree",
           "when": "view == hiddenComments.tree",
           "group": "navigation"
+        },
+        {
+          "command": "hiddenComments.convertAll",
+          "when": "view == hiddenComments.exposed",
+          "group": "navigation@1"
+        },
+        {
+          "command": "hiddenComments.refreshExposed",
+          "when": "view == hiddenComments.exposed",
+          "group": "navigation@2"
         }
       ],
       "view/item/context": [
@@ -207,12 +235,28 @@
           "command": "hiddenComments.deleteComment",
           "when": "view == hiddenComments.tree && viewItem == comment",
           "group": "inline"
+        },
+        {
+          "command": "hiddenComments.convertFile",
+          "when": "view == hiddenComments.exposed && viewItem == exposedFile",
+          "group": "inline"
         }
       ],
       "editor/context": [
         {
           "command": "hiddenComments.add",
           "group": "1_modification@9"
+        },
+        {
+          "command": "hiddenComments.convertFile",
+          "group": "1_modification@10"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "hiddenComments.convertFile",
+          "group": "7_modification",
+          "when": "resourceScheme == file"
         }
       ]
     },
@@ -220,6 +264,10 @@
       {
         "view": "hiddenComments.tree",
         "contents": "%view.welcome%"
+      },
+      {
+        "view": "hiddenComments.exposed",
+        "contents": "%view.exposedWelcome%"
       }
     ]
   },

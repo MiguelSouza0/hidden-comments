@@ -27,5 +27,9 @@
   "config.trustBuildForSourceMaps": "Treats JavaScript, TypeScript, JSX and Vue as safe. Only turn this on if your build minifies AND publishes no source map - otherwise the comment is visible in DevTools.",
   "config.diagnosticsSeverity": "Severity of the warning about comments that reach the browser.",
   "config.author": "Name shown next to comments. Defaults to your system user.",
-  "view.welcome": "No hidden comments in this project yet.\n\nHidden comments are the ones stored outside the source file, for file types that have no comment syntax the browser drops.\n\n[Add hidden comment](command:hiddenComments.add)\n\nComments already written in the file (such as {# ... #}) are normal code and are not listed here."
+  "view.welcome": "No hidden comments in this project yet.\n\nHidden comments are the ones stored outside the source file, for file types that have no comment syntax the browser drops.\n\n[Add hidden comment](command:hiddenComments.add)\n\nComments already written in the file (such as {# ... #}) are normal code and are not listed here.",
+  "cmd.refreshExposed": "Rescan the project",
+  "cmd.convertAll": "Convert every exposed comment",
+  "view.exposed": "Exposed comments",
+  "view.exposedWelcome": "Nothing exposed to the browser in this project.\n\nThis panel lists comments written in a syntax that is served to the browser, when the file type has a safer one available.\n\n[Scan the project](command:hiddenComments.refreshExposed)"
 }

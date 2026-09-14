@@ -20,12 +20,15 @@ import { t } from "./l10n.ts";
 import { GhostComments } from "./ui/decorations.ts";
 import { ExposedComments } from "./ui/diagnostics.ts";
 import { StatusBar } from "./ui/statusBar.ts";
+import { type ExposedFile, ExposedTree } from "./ui/exposedTree.ts";
 import { CommentTree } from "./ui/tree.ts";
 import { SidecarStore, clearMarkerCache, detectForDocument } from "./workspace.ts";
 
 /** Extensoes que podem ter comentario convertivel, para a varredura do projeto. */
 const CONVERTIBLE_GLOB =
   "**/*.{html,htm,twig,njk,j2,jinja,jinja2,hbs,handlebars,ejs,pug,jade,scss,sass,less,blade.php}";
+
+const EXCLUDED = "**/{node_modules,dist,build,.venv,vendor,__pycache__}/**";
 
 function config() {
   return vscode.workspace.getConfiguration("hiddenComments");
@@ -55,10 +58,12 @@ export function activate(context: vscode.ExtensionContext): void {
   const ghosts = new GhostComments();
   const diagnostics = new ExposedComments();
   const tree = new CommentTree(store);
+  const exposedTree = new ExposedTree(() => scanExposed());
 
-  context.subscriptions.push(statusBar, ghosts, diagnostics, tree);
+  context.subscriptions.push(statusBar, ghosts, diagnostics, tree, exposedTree);
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider("hiddenComments.tree", tree),
+    vscode.window.registerTreeDataProvider("hiddenComments.exposed", exposedTree),
   );
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider({ scheme: "file" }, diagnostics, {
@@ -74,6 +79,7 @@ export function activate(context: vscode.ExtensionContext): void {
         detection: undefined,
         trustBuild: trustBuild(),
         hiddenCount: 0,
+        exposedCount: 0,
       });
       return;
     }
@@ -81,6 +87,7 @@ export function activate(context: vscode.ExtensionContext): void {
     const enabled = isEnabled();
     const detection = enabled ? await detectForDocument(editor.document) : undefined;
     const comments = enabled ? await store.load(editor.document) : [];
+    const exposedCount = enabled ? diagnostics.refresh(editor.document, detection) : 0;
 
     statusBar.update({
       enabled,
@@ -88,6 +95,7 @@ export function activate(context: vscode.ExtensionContext): void {
       detection,
       trustBuild: trustBuild(),
       hiddenCount: comments.length,
+      exposedCount,
     });
 
     if (!enabled) {
@@ -95,8 +103,6 @@ export function activate(context: vscode.ExtensionContext): void {
       diagnostics.collection.delete(editor.document.uri);
       return;
     }
-
-    diagnostics.refresh(editor.document, detection);
 
     if (ghostVisible()) {
       ghosts.render(editor, comments);
@@ -240,6 +246,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
     await vscode.workspace.applyEdit(edit, { isRefactoring: true });
+    exposedTree.invalidate();
     void vscode.window.showInformationMessage(t("msg.convertReady", String(total)));
   }
 
@@ -278,8 +285,58 @@ export function activate(context: vscode.ExtensionContext): void {
     return vscode.window.activeTextEditor?.document.uri;
   }
 
+  /** Varre o projeto e monta a lista do painel de expostos. */
+  async function scanExposed(): Promise<readonly ExposedFile[]> {
+    return vscode.window.withProgress(
+      { location: vscode.ProgressLocation.Window, title: t("msg.scanning") },
+      async () => {
+        const found: ExposedFile[] = [];
+
+        for (const uri of await workspaceCandidates()) {
+          const document = await vscode.workspace.openTextDocument(uri);
+          const detection = await detectForDocument(document);
+          if (!detection) {
+            continue;
+          }
+
+          const plan = planConversion(document.getText(), detection.context);
+          if (plan.length === 0) {
+            continue;
+          }
+
+          found.push({
+            uri,
+            source: vscode.workspace.asRelativePath(uri, false),
+            items: plan.map((replacement) => ({
+              line: document.positionAt(replacement.start).line,
+              text: replacement.original,
+            })),
+          });
+        }
+
+        return found;
+      },
+    );
+  }
+
+  /** Uma pasta vinda do menu do explorador vira a lista de arquivos dentro dela. */
+  async function expandToFiles(uri: vscode.Uri): Promise<vscode.Uri[]> {
+    try {
+      const stat = await vscode.workspace.fs.stat(uri);
+      if (stat.type === vscode.FileType.Directory) {
+        return vscode.workspace.findFiles(
+          new vscode.RelativePattern(uri, CONVERTIBLE_GLOB),
+          EXCLUDED,
+        );
+      }
+    } catch {
+      // Nao deu para inspecionar: trata como arquivo.
+    }
+    return [uri];
+  }
+
   async function workspaceCandidates(): Promise<vscode.Uri[]> {
-    return vscode.workspace.findFiles(CONVERTIBLE_GLOB, "**/{node_modules,dist,build,.venv,vendor}/**");
+    return vscode.workspace.findFiles(CONVERTIBLE_GLOB, EXCLUDED);
   }
 
   const commands: ReadonlyArray<readonly [string, (...args: never[]) => unknown]> = [
@@ -314,13 +371,27 @@ export function activate(context: vscode.ExtensionContext): void {
     ],
     [
       "hiddenComments.convertFile",
-      async (target?: vscode.Uri) => {
-        const uri = target ?? activeUri();
+      async (target?: vscode.Uri | { readonly file?: ExposedFile }) => {
+        const fromTree =
+          target && "file" in target ? target.file?.uri : (target as vscode.Uri | undefined);
+        const uri = fromTree ?? activeUri();
         if (uri) {
-          await convert([uri]);
+          await convert(await expandToFiles(uri));
         }
       },
     ],
+    [
+      "hiddenComments.convertAll",
+      async () => {
+        const files = await exposedTree.currentFiles();
+        if (files.length === 0) {
+          void vscode.window.showInformationMessage(t("msg.convertClean"));
+          return;
+        }
+        await convert(files.map((file) => file.uri));
+      },
+    ],
+    ["hiddenComments.refreshExposed", () => exposedTree.refresh()],
     [
       "hiddenComments.convertWorkspace",
       async () => convert(await workspaceCandidates()),
@@ -428,6 +499,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.workspace.onDidSaveTextDocument(() => {
       void refresh();
       tree.refresh();
+      exposedTree.invalidate();
     }),
     vscode.workspace.onDidChangeTextDocument((event) => {
       if (event.document !== vscode.window.activeTextEditor?.document) {
