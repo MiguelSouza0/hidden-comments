@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Loja</title></head>
+<body>
+
+<!-- Cabeçalho: layout novo aprovado pelo cliente em 02/09 -->
+<section class="produto">
+  <h1>Fone Bluetooth XZ-200</h1>
+
+  <!-- TODO: o cálculo de desconto ignora cupom acumulado, corrigir antes do Natal -->
+  <p class="preco">R$ 249,90</p>
+
+  <!-- A API de estoque cai quando passa de 500 itens. Workaround temporário abaixo. -->
+  
+    <span class="disponivel">Em estoque</span>
+  
+
+  <script>
+    // Chave de teste do gateway, trocar pela de produção no deploy
+    const gateway = "/api/checkout";
+    // eslint-disable-next-line no-console
+    console.log(gateway);
+  </script>
+
+  <style>
+    /* Esse z-index briga com o modal do carrinho, não mexer sem testar */
+    .produto { z-index: 10; }
+  </style>
+</section>
+</body></html>
